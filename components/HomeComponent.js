@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, Animated } from 'react-native';
 import { Card } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
@@ -42,6 +42,25 @@ function RenderItem(props) {
 }
 
 class Home extends Component {
+    constructor (props) {
+        super(props);
+        this.state = {
+            scaleValue : new Animated.Value(0)
+        };
+    }
+
+    animate() {
+        Animated.timing(
+            this.state.scaleValue, {
+                toValue:1,
+                duration: 1500,
+                useNativeDriver: true
+            }
+        ).start();
+    }
+    componentDidMount() {
+        this.animate();
+    }
 
     static navigationOptions = {
         title: 'Home'
