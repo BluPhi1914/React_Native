@@ -4,7 +4,7 @@ import { Card } from 'react-native-elements';
 import { CAMPSITES } from '../shared/campsites';
 import { PROMOTIONS } from '../shared/promotions';
 import { PARTNERS } from '../shared/partners';
-
+import * as Animatable from 'react-native-animatable';
 
 class Contact extends Component {
     constructor(props) {
@@ -23,6 +23,7 @@ class Contact extends Component {
         
         return (
             <ScrollView>
+            <Animatable.View animation='fadeInDown' duration={2000} delay={1000}>
                 <Card
                     title= 'Contact Information'
                     wrapperStyle={{ margin: 20 }}
@@ -43,6 +44,7 @@ class Contact extends Component {
                         Email: campsites@nucamp.co
                     </Text>
                 </Card>
+                </Animatable.View>
             </ScrollView>
         );
     }
