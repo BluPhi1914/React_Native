@@ -1,11 +1,13 @@
 import React, { Component } from "react";
-import { View, StyleSheet, ScrollView, Image} from 'react-native';
+import { View, StyleSheet, ScrollView, Image } from 'react-native';
 import { Input, CheckBox, Button, Icon } from 'react-native-elements';
 import * as SecureStore from 'expo-secure-store';
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { baseUrl } from '../shared/baseUrl';
+import * as ImageManipulator from 'expo-image-manipulator';
+import { SaveFormat } from "expo-image-manipulator";
 
 class LoginTab extends Component {
     constructor(props) {
@@ -141,7 +143,9 @@ class RegisterTab extends Component {
             />
         )
     }
+
     getImageFromCamera = async () => {
+
         const cameraPermission = await Permissions.askAsync(Permissions.CAMERA);
         const cameraRollPermission = await Permissions.askAsync(Permissions.CAMERA_ROLL);
 
@@ -152,7 +156,36 @@ class RegisterTab extends Component {
             });
             if (!capturedImage.cancelled) {
                 console.log(capturedImage);
-                this.setState({imageUrl: capturedImage.uri});
+                this.processImage(capturedImage.uri);
+            }
+        }
+    }
+
+    processImage = async (imgUri) => {
+        console.log('Hello') 
+        const processedImage = await ImageManipulator.manipulateAsync(
+            imgUri,
+            [
+                { resize: { width: 400 } }
+            ],
+            { format: SaveFormat.PNG }
+        );
+        console.log(processedImage);
+        this.setState({ imageUrl: processedImage.uri });
+    }
+
+    getImageFromGallery = async () => {
+
+        const cameraRollPermissions = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+
+        if ( cameraRollPermissions.status === 'granted') {
+            const capturedImage = await ImagePicker.launchImageLibraryAsync({
+                allowsEditing: true,
+                aspect: [1, 1]
+            });
+            if (!capturedImage.cancelled) {
+                console.log(capturedImage);
+                this.processImage(capturedImage.uri);
             }
         }
     }
@@ -161,7 +194,7 @@ class RegisterTab extends Component {
         console.log(JSON.stringify(this.state));
         if (this.state.remember) {
             SecureStore.setItemAsync('userinfo', JSON.stringify(
-                {username: this.state.username, password: this.state.password}))
+                { username: this.state.username, password: this.state.password }))
                 .catch(error => console.log('Could not save user info', error));
         } else {
             SecureStore.deleteItemAsync('userinfo').catch(
@@ -176,7 +209,7 @@ class RegisterTab extends Component {
                 <View style={styles.container}>
                     <View style={styles.imageContainer}>
                         <Image
-                            source={{uri: this.state.imageUrl}}
+                            source={{ uri: this.state.imageUrl }}
                             loadingIndicatorSource={require('./images/logo.png')}
                             style={styles.image}
                         />
@@ -184,43 +217,47 @@ class RegisterTab extends Component {
                             title='Camera'
                             onPress={this.getImageFromCamera}
                         />
+                        <Button 
+                        title= 'Gallery'
+                        onPress = {this.getImageFromGallery}
+                        />
                     </View>
                     <Input
                         placeholder='Username'
-                        leftIcon={{type: 'font-awesome', name: 'user-o'}}
-                        onChangeText={username => this.setState({username})}
+                        leftIcon={{ type: 'font-awesome', name: 'user' }}
+                        onChangeText={username => this.setState({ username })}
                         value={this.state.username}
                         containerStyle={styles.formInput}
                         leftIconContainerStyle={styles.formIcon}
                     />
                     <Input
                         placeholder='Password'
-                        leftIcon={{type: 'font-awesome', name: 'key'}}
-                        onChangeText={password => this.setState({password})}
+                        leftIcon={{ type: 'font-awesome', name: 'key' }}
+                        onChangeText={password => this.setState({ password })}
                         value={this.state.password}
                         containerStyle={styles.formInput}
                         leftIconContainerStyle={styles.formIcon}
                     />
                     <Input
                         placeholder='First Name'
-                        leftIcon={{type: 'font-awesome', name: 'user-o'}}
-                        onChangeText={firstname => this.setState({firstname})}
+                        leftIcon={{ type: 'font-awesome', name: 'user-o' }}
+                        onChangeText={firstname => this.setState({ firstname })}
                         value={this.state.firstname}
                         containerStyle={styles.formInput}
                         leftIconContainerStyle={styles.formIcon}
                     />
                     <Input
                         placeholder='Last Name'
-                        leftIcon={{type: 'font-awesome', name: 'user-o'}}
-                        onChangeText={lastname => this.setState({lastname})}
+                        leftIcon={{ type: 'font-awesome', name: 'user-o' }}
+                        onChangeText={lastname => this.setState({ lastname })}
                         value={this.state.lastname}
                         containerStyle={styles.formInput}
                         leftIconContainerStyle={styles.formIcon}
                     />
                     <Input
                         placeholder='Email'
-                        leftIcon={{type: 'font-awesome', name: 'envelope-o'}}
-                        onChangeText={email => this.setState({email})}
+                        leftIcon={{ type: 'font-awesome', name: 'envelope-o' }}
+                        onChangeText={email => this.setState({ email })}
                         value={this.state.email}
                         containerStyle={styles.formInput}
                         leftIconContainerStyle={styles.formIcon}
@@ -229,7 +266,7 @@ class RegisterTab extends Component {
                         title='Remember Me'
                         center
                         checked={this.state.remember}
-                        onPress={() => this.setState({remember: !this.state.remember})}
+                        onPress={() => this.setState({ remember: !this.state.remember })}
                         containerStyle={styles.formCheckbox}
                     />
                     <View style={styles.formButton}>
@@ -241,11 +278,12 @@ class RegisterTab extends Component {
                                     name='user-plus'
                                     type='font-awesome'
                                     color='#fff'
-                                    iconStyle={{marginRight: 10}}
+                                    iconStyle={{ marginRight: 10 }}
                                 />
                             }
-                            buttonStyle={{backgroundColor: '#5637DD'}}
+                            buttonStyle={{ backgroundColor: '#5637DD' }}
                         />
+
                     </View>
                 </View>
             </ScrollView>
@@ -264,7 +302,7 @@ const Login = createBottomTabNavigator(
             inactiveBackgroundColor: '#CEC8FF',
             activeTintColor: '#fff',
             inactiveTintColor: "#808080",
-            labelStyle: {fontSize: 16}
+            labelStyle: { fontSize: 16 }
         }
     }
 );

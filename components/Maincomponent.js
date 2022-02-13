@@ -231,6 +231,7 @@ const MainNavigator = createDrawerNavigator(
                 )
             }
         },
+
         Home: {
             screen: HomeNavigator,
             navigationOptions: {
@@ -331,16 +332,17 @@ class Main extends Component {
         this.props.fetchPartners();
         this.props.fetchPromotions();
 
-        NetInfo.fetch().then(connectionInfo => {
+        showNetInfo = async () => {
+            const connectionInfo = await NetInfo.fetch();
+            console.log(connectionInfo);
             (Platform.OS === 'ios')
                 ? Alert.alert('Initial Network Connectivity Type:', connectionInfo.type)
                 : ToastAndroid.show('Initial Network Connectivity Type: ' +
                     connectionInfo.type, ToastAndroid.LONG);
-        });
-        this.unsubscribeNetInfo = NetInfo.addEventListener(connectionInfo => {
-            this.handleConnectivityChange(connectionInfo);
-        });
+            }
+        }
     }
+
     componentWillUnmount() {
         this.unsubscribeNetInfo();
     }
